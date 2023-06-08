@@ -35,8 +35,8 @@ namespace Chessggagi
         {
             if (isDragging)
             {
-                startPosition = new Vector3(selectedPiece.transform.position.x, 3f, selectedPiece.transform.position.z);
-                endPosition = new Vector3(GetMouseWorldPosition().x, 3f, GetMouseWorldPosition().z);
+                startPosition = new Vector3(selectedPiece.transform.position.x, 4f, selectedPiece.transform.position.z);
+                endPosition = new Vector3(GetMouseWorldPosition().x, 4f, GetMouseWorldPosition().z);
 
                 float lineLength = Vector3.Distance(startPosition, endPosition);
                 if (lineLength > maxLineLength)
@@ -52,6 +52,11 @@ namespace Chessggagi
 
         private void OnMouseDown()
         {
+            if (GameManager.Inst.IsTurnChanging)
+            {
+                return;
+            }
+
             if (selectedPiece != null && selectedPiece.State == Piece.PieceState.Selected)
             {
                 selectedPiece.State = Piece.PieceState.Dragging;
@@ -63,17 +68,22 @@ namespace Chessggagi
 
         private void OnMouseUp()
         {
+            if (GameManager.Inst.IsTurnChanging)
+            {
+                return;
+            }
+
             if (selectedPiece != null && selectedPiece.State == Piece.PieceState.Dragging)
             {
                 lineRenderer.enabled = false;
                 isDragging = false;
-                selectedPiece.State = Piece.PieceState.Selected;
+                selectedPiece.State = Piece.PieceState.Shot;
 
                 Vector3 dir = endPosition - startPosition;
                 float lineLength = Vector3.Distance(startPosition, endPosition);
 
                 selectedPiece.Shoot(dir, lineLength);
-                Debug.Log("Line Length: " + lineLength);
+                //Debug.Log("Line Length: " + lineLength);
             }
         }
 
