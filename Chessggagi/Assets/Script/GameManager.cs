@@ -17,6 +17,15 @@ namespace Chessggagi
 
         public ClickUI[] Buttons;
 
+        [SerializeField]
+        private Sprite[] Winner;
+
+        [SerializeField]
+        private Image Result;
+
+        [SerializeField]
+        private Canvas Canvas;
+
         public enum Player { White, Black }
 
         public Player currentPlayer;
@@ -52,7 +61,7 @@ namespace Chessggagi
             if(!isGameEnd)
             {
                 currentPlayer = currentPlayer == Player.White ? Player.Black : Player.White;
-                StartCoroutine(TurnCamera());
+               TurnCamera();
             }
 
 
@@ -65,23 +74,13 @@ namespace Chessggagi
             return piece.tag == currentPlayer.ToString();
         }
 
-        IEnumerator TurnCamera()
+        public void TurnCamera()
         {
             IsTurnChanging = true;
 
-            Quaternion startRotation = Camera.main.transform.rotation;
-            Quaternion endRotation = Quaternion.Euler(Camera.main.transform.eulerAngles.x,
-                                                      Camera.main.transform.eulerAngles.y + 180f,
-                                                      Camera.main.transform.eulerAngles.z);
-            float elapsedTime = 0;
-            float rotateTime = 1f; // Set your rotation time (1 sec in this case)
-
-            while (elapsedTime < rotateTime)
-            {
-                Camera.main.transform.rotation = Quaternion.Slerp(startRotation, endRotation, (elapsedTime / rotateTime));
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
+            board.gameObject.transform.rotation = Quaternion.Euler(board.transform.eulerAngles.x,
+                                              board.transform.eulerAngles.y + 180f,
+                                              board.transform.eulerAngles.z);
 
             IsTurnChanging = false;
         }
@@ -109,37 +108,20 @@ namespace Chessggagi
 
         private void EndGame()
         {
-            /*if (whitePieces <= 0 && blackPieces > 0)
-            {
-                resultText.text = "Black Win";
-                // Do any other end of game processing here
-            }
-            else if (blackPieces <= 0 && whitePieces > 0)
-            {
-                resultText.text = "White Win";
-                // Do any other end of game processing here
-            }
-            else if (blackPieces <= 0 && whitePieces <= 0)
-            {
-                resultText.text = "Draw";
-                // Do any other end of game processing here
-            }*/
-            string winner = whitePieces > blackPieces ? "White" : "Black";
-            if (whitePieces == blackPieces)
-                winner = "Draw";
-
-            Buttons[0].gameObject.SetActive(true);
-            if(currentPlayer is Player.Black)
+            int winner = whitePieces > blackPieces ? 1 : 0;
+            /*if(currentPlayer is Player.Black)
             {
                 Camera.main.transform.rotation = Quaternion.Euler(Camera.main.transform.eulerAngles.x,
                                                           Camera.main.transform.eulerAngles.y + 180f,
                                                           Camera.main.transform.eulerAngles.z);
-            }
+            }*/
+            Canvas.gameObject.SetActive(true);
+
+            Result.sprite = Winner[winner];
 
             Buttons[0].AddListenerOnly(() =>
             {
                 SceneManager.LoadScene("StartScene");
-                Buttons[0].gameObject.SetActive(false);
             });
 
             Debug.Log("GameEnd" + " White Piece:" + whitePieces + " Black Pieces: " + blackPieces);
